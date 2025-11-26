@@ -1,0 +1,20 @@
+important_domains:
+  - hrt.com
+  - radix-trading.com
+  - janestreet.com
+  - google.com
+  - microsoft.com
+  - email.apple.com
+  - nvidia.com
+
+domains:
+  - name: deadline
+    description: "Emails announcing deadlines, submission dates, assignment due dates, with explicit dates/times."
+  - name: professor
+    description: "Emails from professors or TAs requesting actions, replies about grades, meetings, or projects."
+  - name: internship
+    description: "Recruiter or company emails about internship offers, interviews, scheduling."
+  - name: admin
+    description: "Administrative emails that may require action (hostel, fees, institute notices)."
+  - name: newsletter
+    description: "Low priority newsletters, mailing lists, announcements; generally not urgent."
