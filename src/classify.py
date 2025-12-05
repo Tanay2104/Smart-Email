@@ -3,6 +3,7 @@ import re
 import os
 from datetime import datetime, timezone
 
+
 def rule_score(email):
     # Assigns weights to emails based on predecided values.
     domains = []
@@ -30,14 +31,24 @@ def rule_score(email):
             pass
 
     # Keyword score
-    keywords = ["deadline", "submit", "submission", "assigment", "assignment", "offer", 
-                "interview", "urgent", "slot", "due soon"]
-    
+    keywords = [
+        "deadline",
+        "submit",
+        "submission",
+        "assigment",
+        "assignment",
+        "offer",
+        "interview",
+        "urgent",
+        "slot",
+        "due soon",
+    ]
+
     # FIX 1: Use correct key 'subject' (singular) and handle None
     subject = email.get("subject") or ""
     body = email.get("body") or ""
     text = f"{subject} {body}".lower()
-    
+
     for kw in keywords:
         if kw in text:
             s += 0.15
@@ -54,7 +65,7 @@ def rule_score(email):
     if date_obj and isinstance(date_obj, datetime):
         now = datetime.now(timezone.utc)
         if date_obj.tzinfo is None:
-            date_obj = date_obj.replace(tzinfo = timezone.utc)
+            date_obj = date_obj.replace(tzinfo=timezone.utc)
         delta = now - date_obj
         if delta.days <= 2:
             s += 0.2

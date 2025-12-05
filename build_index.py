@@ -10,6 +10,7 @@ DOMAINS_YML = "config/domains.yml"
 META_DB = "data/meta.sqlite"
 INDEX_PATH = "data/embeddings.faiss"
 
+
 def build_domain_index():
     with open(DOMAINS_YML) as f:
         cfg = yaml.safe_load(f)
@@ -21,7 +22,7 @@ def build_domain_index():
     for d in domains:
         text = d.get("description", d.get("name", ""))
         vec = embed_text_with_llama(text)
-        vectors.append(np.array(vec, dtype="float32"))
+        vectors.append(np.array(vec, dtype="float32").flatten())
 
     dim = vectors[0].shape[0]
     index = faiss.IndexFlatIP(dim)
@@ -38,10 +39,14 @@ def build_domain_index():
     conn.execute("CREATE TABLE IF NOT EXISTS domains (name TEXT, description TEXT)")
     conn.execute("DELETE FROM domains")
     for d in domains:
-        conn.execute("INSERT INTO domains (name, description) VALUES (?, ?)", (d.get("name"), d.get("description", "")))
+        conn.execute(
+            "INSERT INTO domains (name, description) VALUES (?, ?)",
+            (d.get("name"), d.get("description", "")),
+        )
     conn.commit()
     conn.close()
     print(f"Built FAISS index at {INDEX_PATH} and meta DB at {META_DB}")
+
 
 if __name__ == "__main__":
     build_domain_index()

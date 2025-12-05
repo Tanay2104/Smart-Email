@@ -8,6 +8,7 @@ import math
 
 faiss_helper = FaissHelper()
 
+
 def process_email(path: str) -> dict:
     mail = parse_mail_from_path(path)
     text = (mail.get("subject") or "") + "\n\n" + (mail.get("body") or "")
@@ -16,8 +17,14 @@ def process_email(path: str) -> dict:
     domain = domains[0]["name"] if domains else "unknown"
 
     rscore = rule_score(mail)  # returns 0.0-1.0
-    llm_out = score_email(mail.get("subject", ""), mail.get("body", ""), domain, mail.get("from", ""))
-    llm_score = llm_out.get("importance", 10.0)
+    if rscore > 0.3:
+        llm_out = score_email(
+            mail.get("subject", ""), mail.get("body", ""), domain, mail.get("from", "")
+        )
+        llm_score = llm_out.get("importance", 10.0)
+    else:
+        llm_score = 0.0
+        llm_out = {}
 
     combined = 0.7 * (rscore * 100.0) + 0.3 * llm_score
     combined = float(combined)
