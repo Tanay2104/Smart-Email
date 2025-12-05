@@ -3,9 +3,30 @@ import faiss
 import numpy as np
 import sqlite3
 import os
+import yaml
 
-INDEX_PATH = os.path.expanduser(os.getenv("SMARTMAIL_FAISS", "~/projects/smart-mail/data/embeddings.faiss"))
-META_DB = os.path.expanduser(os.getenv("SMARTMAIL_META_DB", "~/projects/smart-mail/data/meta.sqlite"))
+CONFIG_PATH = os.path.expanduser("~/Projects/smart-mail/config/config.yml")
+
+
+def load_config():
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, "r") as f:
+            return yaml.safe_load(f)
+    print(f"Warning: Config not found at {CONFIG_PATH}")
+    return {}
+
+
+# Load configuration once
+cfg = load_config()
+# EMBED_BIN = cfg.get("embed_bin", "~/llama.cpp/build/bin/llama-embedding")
+
+INDEX_PATH = os.path.expanduser(
+    cfg.get("faiss_index", "~/Projects/smart-mail/data/embeddings.faiss")
+)
+META_DB = os.path.expanduser(
+    cfg.get("meta_db", "~/Projects/smart-mail/data/meta.sqlite")
+)
+
 
 class FaissHelper:
     def __init__(self):
@@ -32,7 +53,9 @@ class FaissHelper:
             if idx < 0:
                 continue
             # rowid storage assumed to be 1-based
-            cur = self.conn.execute("SELECT name, description FROM domains WHERE rowid = ?", (int(idx) + 1,))
+            cur = self.conn.execute(
+                "SELECT name, description FROM domains WHERE rowid = ?", (int(idx) + 1,)
+            )
             r = cur.fetchone()
             if r:
                 rows.append({"name": r[0], "description": r[1], "score": float(dist)})
